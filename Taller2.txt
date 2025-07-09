@@ -1,0 +1,68 @@
+Descripción del problema - PayTrack 
+El presente documento especifica los requisitos funcionales para el desarrollo del 
+sistema PayTrack, una solución para el registro, gestión y consulta de pagos realizados 
+por clientes. 
+Actualmente, el proceso de registro de pagos se realiza de forma manual o no 
+estructurada, lo que genera errores, duplicaciones, pérdida de trazabilidad y 
+dificultades para integrar fuentes o destinos de datos. Se busca desarrollar un sistema 
+modular, validado y extensible para abordar estas limitaciones. 
+A partir del análisis realizado por el equipo de arquitectura, se determinó que el 
+sistema será implementado como un servicio REST expuesto mediante una API HTTP. 
+El diseño interno seguirá el enfoque de arquitectura hexagonal (puertos y 
+adaptadores), con los siguientes objetivos: 
+• Separar claramente la lógica de negocio (dominio y casos de uso) de las 
+tecnologías específicas (HTTP, bases de datos, interfaces). 
+• Facilitar pruebas unitarias y de integración. 
+• Permitir la evolución del sistema (ej. nuevas interfaces, bases de datos o 
+canales de entrada) sin modificar el núcleo funcional. 
+• Habilitar adaptadores adicionales, como una interfaz de línea de comandos, 
+integración con otros sistemas o automatización de flujos. 
+Casos de uso a implementar 
+RF1. Registrar un Pago 
+Descripción: El sistema debe permitir registrar un nuevo pago realizado por un cliente. 
+Entradas (vía JSON en el cuerpo de la solicitud): 
+• nombre_cliente (string) 
+• monto (float) 
+Reglas de negocio: 
+• El monto debe ser mayor que cero. 
+• La fecha se asigna automáticamente al momento del registro. 
+• El estado inicial del pago será "COMPLETADO". 
+Salida esperada: 
+• HTTP 201 con los datos del pago registrado. 
+• HTTP 400 en caso de error de validación (ej. monto negativo). 
+RF2. Listar todos los Pagos 
+Descripción: El sistema debe permitir obtener la lista completa de pagos registrados. 
+Entradas: Ninguna. 
+Reglas: 
+• Los pagos se pueden retornar en el orden en que fueron registrados. 
+• Se puede agregar ordenamiento por fecha en el futuro. 
+Salida esperada: 
+• HTTP 200 con una lista de objetos Pago. 
+RF3. Buscar Pagos por Cliente 
+Descripción: El sistema debe permitir consultar todos los pagos realizados por un 
+cliente específico. 
+Entradas: 
+• nombre_cliente como parámetro en la URL o query string. 
+Reglas: 
+• La búsqueda debe ser exacta (opcionalmente insensible a 
+mayúsculas/minúsculas). 
+• Si no se encuentran pagos, retornar lista vacía. 
+Salida esperada: 
+• HTTP 200 con lista de pagos encontrados. 
+RF4. Eliminar un Pago 
+Descripción: El sistema debe permitir eliminar un pago registrado. 
+Entradas: 
+• Identificador del pago en la URL (por ejemplo, /pagos/{id}) 
+Reglas: 
+• Solo puede eliminarse si el estado del pago es "COMPLETADO". 
+• Si el pago no existe o no puede eliminarse, retornar un mensaje de error. 
+Salida esperada: 
+• HTTP 204 en caso de eliminación exitosa. 
+• HTTP 400 o 404 en caso de error. 
+3. Requisitos no funcionales 
+• El sistema debe implementar arquitectura hexagonal con separación clara entre 
+dominio, casos de uso, interfaces (puertos) y adaptadores. 
+• La lógica de negocio debe ser independiente del framework web (por ejemplo, 
+FastAPI o Flask). En caso que sea complejo usar estos FW, simularlo mediante 
+un  
+• El diseño debe permitir escalar hacia otros casos de uso fácilmente.
